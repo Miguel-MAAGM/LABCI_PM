@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gráfico en Tiempo Real</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h2>Señal desde Orange Pi</h2>
+    <canvas id="grafico" width="800" height="400"></canvas>
+
+    <script>
+        const ctx = document.getElementById("grafico").getContext("2d");
+
+        const data = {
+            labels: Array.from({length: 50}, (_, i) => i),
+            datasets: [{
+                label: "Señal",
+                borderWidth: 2,
+                borderColor: "blue",
+                backgroundColor: "rgba(0,0,255,0.1)",
+                data: Array(50).fill(0),
+            }]
+        };
+
+        const config = {
+            type: 'line',
+            data: data,
+            options: {
+                animation: false,
+                responsive: true,
+                scales: {
+                    y: {
+                        suggestedMin: -1.5,
+                        suggestedMax: 1.5
+                    }
+                }
+            }
+        };
+
+        const chart = new Chart(ctx, config);
+        const WS_IP_sd = window.location.hostname;
+        console.log(WS_IP_sd);
+        
+        const WS_IP = "{{ ws_ip }}";
+        const WS_PORT = "{{ ws_port }}";
+        const ws = new WebSocket(`ws://${WS_IP}:${WS_PORT}`);
+
+        ws.onmessage = function(event) {
+            const mensaje = JSON.parse(event.data);
+            if (mensaje.datos) {
+                chart.data.datasets[0].data = mensaje.datos;
+                chart.update();
+            }
+        };
+    </script>
+</body>
+</html>

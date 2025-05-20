@@ -1,20 +1,29 @@
 from flask import Flask, render_template
-import logging
-import os
 
-logging.basicConfig(level=logging.INFO)
-logging.disable(logging.DEBUG)
 app = Flask(__name__)
+import socket
+
+def get_local_ip():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        # No se envía nada realmente, solo se resuelve la IP local
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+    except Exception:
+        ip = "127.0.0.1"
+    finally:
+        s.close()
+    return ip
+
+# Configura tu IP y puerto aquí
+
+WS_IP = get_local_ip()
+WS_PORT = 8765
 
 @app.route("/")
 def index():
-    # Acá puedes mostrar datos o configuraciones
-    return "<h1>Bienvenido a la configuración de Orange Pi</h1><p>Red no detectada, estás en modo AP.</p>"
-
-@app.route("/config")
-def config():
-    # Acá podrías mostrar formularios para cambiar Wi-Fi o ver estado
-    return "<h2>Configuración Wi-Fi</h2>"
+    print(f"Conectando a WebSocket en ws://{WS_IP}:{WS_PORT}")
+    return render_template("index.html", ws_ip=WS_IP, ws_port=WS_PORT)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=80)
