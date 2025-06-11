@@ -1,9 +1,7 @@
 from flask import Flask, render_template
 from flask_socketio import SocketIO
-import serial
-import threading
-import struct
-
+import subprocess
+ws_process = subprocess.Popen(["python", "usbDATA.py"])
 app = Flask(__name__)
 @app.route("/")
 def home():
