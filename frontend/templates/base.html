@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title if title else "Dashboard" }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.plot.ly/plotly-2.16.1.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 min-h-screen flex">
+    <!-- Sidebar -->
+    <div class="w-64 bg-white shadow-lg h-screen fixed top-0 left-0 flex flex-col z-10">
+        <div class="p-6 border-b">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-cube text-indigo-600 text-2xl"></i>
+                <span class="text-xl font-bold text-gray-800">Dashboard</span>
+            </div>
+        </div>
+        <div class="flex-grow p-4">
+            <ul class="space-y-2">
+                <li>
+                    <a href="{{ url_for('home') }}" class="nav-item flex items-center p-3 rounded-lg transition-all {% if active_page == 'home' %}bg-indigo-100 text-indigo-700{% else %}text-gray-700 hover:bg-gray-100{% endif %}">
+                        <i class="fas fa-home mr-3"></i> Home
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('measure') }}" class="nav-item flex items-center p-3 rounded-lg transition-all {% if active_page == 'measure' %}bg-indigo-100 text-indigo-700{% else %}text-gray-700 hover:bg-gray-100{% endif %}">
+                        <i class="fas fa-ruler-combined mr-3"></i> Measure
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('settings') }}" class="nav-item flex items-center p-3 rounded-lg transition-all {% if active_page == 'settings' %}bg-indigo-100 text-indigo-700{% else %}text-gray-700 hover:bg-gray-100{% endif %}">
+                        <i class="fas fa-cog mr-3"></i> Settings
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <main class="ml-64 p-6 w-full">
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

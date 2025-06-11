@@ -1,0 +1,75 @@
+
+{% extends "base.html" %}
+{% block content %}
+<div class="bg-white rounded-xl shadow-md p-6">
+    <h2 class="text-xl font-bold text-gray-800 mb-4">Measurement Analysis</h2>
+    <div id="plotContainer" class="w-full h-96"></div>
+    <div class="flex space-x-4 mt-4">
+        <button id="btnCapture" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">Capture</button>
+        <button id="btnStop" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">Stop</button>
+        <button id="btnSave" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">Save</button>
+        <button id="btnClear" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition">Clear</button>
+    </div>
+</div>
+<script src="https://cdn.plot.ly/plotly-2.16.1.min.js"></script>
+<script>
+    let socket = null;
+    let x = [], y1 = [], y2 = [];
+
+    Plotly.newPlot('plotContainer', [
+        { x: [], y: [], mode: 'lines', name: 'CH1', line: { color: '#636efa' } },
+        { x: [], y: [], mode: 'lines', name: 'CH2', line: { color: '#ef553b' } }
+    ]);
+
+    document.getElementById("btnCapture").onclick = function() {
+        if (!socket || socket.readyState !== WebSocket.OPEN) {
+            socket = new WebSocket("ws://localhost:8765");
+            socket.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                const ch1 = data.ch1;
+                const ch2 = data.ch2;
+                const base = x.length;
+
+                for (let i = 0; i < ch1.length; i++) {
+                    x.push(base + i);
+                    y1.push(ch1[i]);
+                    y2.push(ch2[i]);
+                }
+
+                Plotly.update('plotContainer', {
+                    x: [x, x],
+                    y: [y1, y2]
+                });
+            };
+        }
+    };
+
+    document.getElementById("btnStop").onclick = function() {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            socket.close();
+        }
+    };
+
+    document.getElementById("btnClear").onclick = function() {
+        x = []; y1 = []; y2 = [];
+        Plotly.update('plotContainer', {
+            x: [[], []],
+            y: [[], []]
+        });
+    };
+
+    document.getElementById("btnSave").onclick = function() {
+        let csv = "Index,CH1,CH2\n";
+        for (let i = 0; i < x.length; i++) {
+            csv += x[i] + "," + y1[i] + "," + y2[i] + "\n";
+        }
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "data_capture.csv";
+        a.click();
+        URL.revokeObjectURL(url);
+    };
+</script>
+{% endblock %}

@@ -45,6 +45,7 @@ async def handler(websocket):
         await asyncio.sleep(0.1)  # espera regular
         with lock:
             if latest_chunk:
+                
                 await websocket.send(json.dumps({"datos": latest_chunk}))
 
 async def main():

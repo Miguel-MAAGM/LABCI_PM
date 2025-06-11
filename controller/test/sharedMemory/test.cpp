@@ -34,7 +34,7 @@ int main() {
             buffer[i] = sin(2 * M_PI * i / CHUNK_SIZE + contador * 0.1f);
         }
         
-        // Solo postea si no hay señal pendiente
+        // Solo postea si no hay señal pendient
         int sval;
         sem_getvalue(sem, &sval);
         if (sval == 0) {
